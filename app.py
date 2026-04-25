@@ -24,17 +24,15 @@ except Exception as e:
 st.sidebar.header("📝 Customer Details")
 
 def user_input_features():
-    # These are example features. Update them to match your dataset's exact columns!
     age = st.sidebar.slider("Age", 18, 90, 30)
     
-    # Assuming Income Class is encoded as 1 (Low), 2 (Medium), 3 (High) etc.
+    frequent_flyer = st.sidebar.selectbox("Is a Frequent Flyer?", ["Yes", "No"])
+    frequent_flyer_val = 1 if frequent_flyer == "Yes" else 0
+    
+    # Assuming Income Class is encoded as 1 to 5, adjust if your dataset is different
     income_class = st.sidebar.selectbox("Annual Income Class", [1, 2, 3, 4, 5])
     
     services_opted = st.sidebar.slider("Number of Services Opted", 1, 10, 2)
-    
-    # For binary categorical features (Yes/No mapped to 1/0)
-    frequent_flyer = st.sidebar.selectbox("Is a Frequent Flyer?", ["Yes", "No"])
-    frequent_flyer_val = 1 if frequent_flyer == "Yes" else 0
     
     social_media_synced = st.sidebar.selectbox("Account Synced to Social Media?", ["Yes", "No"])
     social_media_val = 1 if social_media_synced == "Yes" else 0
@@ -42,24 +40,23 @@ def user_input_features():
     booked_hotel = st.sidebar.selectbox("Booked Hotel Recently?", ["Yes", "No"])
     booked_hotel_val = 1 if booked_hotel == "Yes" else 0
 
-    # Create a dictionary matching exactly how your columns were named in Jupyter Notebook
+    # PERFECTLY MATCHING THE JUPYTER NOTEBOOK ORDER
     data = {
         'Age': age,
+        'FrequentFlyer': frequent_flyer_val,
         'AnnualIncomeClass': income_class,
         'ServicesOpted': services_opted,
-        'FrequentFlyer': frequent_flyer_val,
         'AccountSyncedToSocialMedia': social_media_val,
         'BookedHotelOrNot': booked_hotel_val
     }
     
-    # Convert the dictionary into a Pandas DataFrame (which the model expects)
     features = pd.DataFrame(data, index=[0])
     return features
 
-# 4. Store the user inputs into a variable
+# 4. Store the user inputs
 input_df = user_input_features()
 
-# Display the user's inputs on the main screen
+# Display the user's inputs
 st.subheader("Customer Data Summary")
 st.write(input_df)
 
@@ -67,16 +64,14 @@ st.markdown("---")
 
 # 5. Prediction Logic
 if st.button("🔍 Predict Churn Risk", type="primary"):
-    # Pass the input data to the model
     prediction = model.predict(input_df)
     prediction_proba = model.predict_proba(input_df)
     
     st.subheader("Prediction Result:")
     
-    # If prediction is 1 (Churn), else 0 (Stay)
     if prediction[0] == 1:
-        st.error(f"⚠️ **High Risk of Churn!** This customer is likely to leave.")
-        st.write(f"Confidence: {prediction_proba[0][1] * 100:.2f}%")
+        st.error("⚠️ **High Risk of Churn!** This customer is likely to leave.")
+        st.write(f"Confidence: **{prediction_proba[0][1] * 100:.2f}%**")
     else:
-        st.success(f"✅ **Safe Customer!** This customer is likely to stay.")
-        st.write(f"Confidence: {prediction_proba[0][0] * 100:.2f}%")
+        st.success("✅ **Safe Customer!** This customer is likely to stay.")
+        st.write(f"Confidence: **{prediction_proba[0][0] * 100:.2f}%**")
